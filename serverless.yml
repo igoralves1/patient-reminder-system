@@ -1,0 +1,80 @@
+service: patient-reminder-system
+# npm i @aws-sdk/client-eventbridge @aws-sdk/client-lambda serverless-plugin-log-retention serverless-iam-roles-per-function
+
+frameworkVersion: "3"
+variablesResolutionMode: 20210326
+
+plugins:
+# * List of Plugins
+# * https://github.com/serverless/plugins
+# https://tipsfordev.com/how-can-i-remove-a-stack-with-serverless-greengrass-plugin
+
+# https://github.com/functionalone/serverless-iam-roles-per-function
+- serverless-iam-roles-per-function
+
+# https://www.npmjs.com/package/serverless-plugin-log-retention
+- serverless-plugin-log-retention
+
+custom:
+  # --- Log-retention
+  logRetentionInDays: 30 # used to set a global value for all functions
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  lambdaHashingVersion: 20201221
+  stage: ${opt:stage, 'dev'}
+  region: ${file(env.yml):${self:provider.stage}.region}
+  versionFunctions: false
+
+functions:
+  setRememberReturn:
+    # This is the name of the function that will be displayed in the AWS Lambda/CloudWatch dashboard. Ex: dev-slsSetupWire-fnWireFrame. It shows the Environment, the Repository Name and the File.js/Function Name.  
+    name: setRememberReturn
+    handler: setRememberReturn.setRememberReturn
+    events:
+      - http:
+          path: /rememberreturn/create
+          method: get
+          private: false
+          request:
+            parameters:
+              querystrings:
+                client_id: true
+                client_key: true
+                pacient_id: true
+                paciente_name: true
+                phone: true
+                process_name: true
+                process_nb: true
+                timestampDate: true
+                whatsappID: true
+    memorySize: 256
+    timeout: 30
+    logRetentionInDays: 1 # Set or override the retention for specific log group or function
+    iamRoleStatementsName: setRememberReturnIAMrole
+    iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - "lambda:InvokeFunction"
+      Resource:
+        - arn:aws:lambda:us-east-1:996242555412:function:sendMessageDeleteRule
+    - Effect: Allow
+      Action:
+        - "events:PutRule"
+        - "events:PutTargets"
+        - "events:RemoveTargets"
+        - "events:DeleteRule"
+        - 'lambda:AddPermission'
+      Resource: "*"
+
+
+# resources:
+#   Resources:
+#     LambdaInvokePermissionForEventBridge:
+#       Type: AWS::Lambda::Permission
+#       Properties:
+#         FunctionName: arn:aws:lambda:us-west-2:123456789012:function:YourLambdaFunctionName
+#         Action: lambda:InvokeFunction
+#         Principal: events.amazonaws.com
+#         SourceArn: arn:aws:events:us-west-2:123456789012:rule/OneTimeScheduleRule

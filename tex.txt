@@ -1,0 +1,900 @@
+
+// const AWS = require('aws-sdk');
+// const moment = require('moment');
+// const Twilio = require('twilio');
+
+// const dynamoDb = new AWS.DynamoDB.DocumentClient();
+// const tableName = 'patient-events';
+
+// const twilioClient = new Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
+// module.exports.processPayload = async (event) => {
+//     const payload = JSON.parse(event.body);
+//     const currentDate = moment().toISOString();
+//     const processNumber = payload.processNumber;
+
+//     const params = {
+//         TableName: tableName,
+//         Item: {
+//             patientId: payload.patientId,
+//             patientName: payload.patientName,
+//             processNumber: processNumber,
+//             currentDate: currentDate,
+//             patientCellPhone: payload.patientCellPhone
+//         }
+//     };
+
+//     try {
+//         await dynamoDb.put(params).promise();
+
+//         if (processNumber === 1) {
+//             const reminders = [
+//                 { days: 30, message: 'Message for 30 days remind' },
+//                 { days: 60, message: 'Message for 60 days remind' },
+//                 { days: 120, message: 'Message for 120 days remind' }
+//             ];
+
+//             for (const reminder of reminders) {
+//                 const reminderDate = moment().add(reminder.days, 'days').toISOString();
+//                 const reminderParams = {
+//                     TableName: tableName,
+//                     Item: {
+//                         patientId: payload.patientId,
+//                         reminderDate: reminderDate,
+//                         message: reminder.message
+//                     }
+//                 };
+
+//                 await dynamoDb.put(reminderParams).promise();
+
+//                 // Send WhatsApp message
+//                 await sendWhatsAppMessage(payload.patientCellPhone, reminder.message);
+//             }
+//         }
+
+//         return {
+//             statusCode: 200,
+//             body: JSON.stringify({ message: 'Event processed successfully' })
+//         };
+//     } catch (error) {
+//         return {
+//             statusCode: 500,
+//             body: JSON.stringify({ error: 'An error occurred while processing the event' })
+//         };
+//     }
+// };
+
+// async function sendWhatsAppMessage(recipient, message) {
+//     try {
+//         await twilioClient.messages.create({
+//             body: message,
+//             from: 'whatsapp:+14155238886', // Your Twilio WhatsApp number
+//             to: `whatsapp:${recipient}`
+//         });
+//     } catch (error) {
+//         console.error('Error sending WhatsApp message:', error);
+//         throw error;
+//     }
+// }
+
+
+
+
+
+
+// // const AWS = require('aws-sdk');
+// // const dynamoDb = new AWS.DynamoDB.DocumentClient();
+// // const sns = new AWS.SNS();
+
+// // const twilio = require('twilio');
+// // const accountSid = 'YOUR_TWILIO_ACCOUNT_SID';
+// // const authToken = 'YOUR_TWILIO_AUTH_TOKEN';
+// // const client = twilio(accountSid, authToken);
+// // const moment = require('moment');
+// // const tableName = 'patient-events';
+
+// // const WHATSAPP_SNS_TOPIC_ARN = 'arn:aws:sns:us-east-1:YOUR_ACCOUNT_ID:whatsapp-topic';
+// // const twilioClient = new Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
+// // module.exports.receiveEvent = async (event) => {
+// //   const { patientName, patientID, processNumber, currentDate, patientCellPhone } = JSON.parse(event.body);
+
+// //   if (processNumber !== 1) {
+// //     return { statusCode: 400, body: 'Invalid process number' };
+// //   }
+
+// //   const reminders = [
+// //     { days: 30, message: 'message for 30 days remind' },
+// //     { days: 60, message: 'message for 60 days remind' },
+// //     { days: 120, message: 'message for 120 days remind' },
+// //   ];
+
+// //   const putRequests = reminders.map(reminder => {
+// //     return dynamoDb.put({
+// //       TableName: 'Reminders',
+// //       Item: {
+// //         patientID,
+// //         reminderDate: new Date(new Date(currentDate).setDate(new Date(currentDate).getDate() + reminder.days)).toISOString(),
+// //         patientName,
+// //         patientCellPhone,
+// //         message: reminder.message
+// //       }
+// //     }).promise();
+// //   });
+
+// //   await Promise.all(putRequests);
+
+// //   return { statusCode: 200, body: JSON.stringify({ message: 'Reminders scheduled' }) };
+// // };
+
+// // module.exports.scheduleReminders = async (event) => {
+// //   const remindersDue = await dynamoDb.scan({
+// //     TableName: 'Reminders',
+// //     FilterExpression: '#date <= :now',
+// //     ExpressionAttributeNames: {
+// //       '#date': 'reminderDate'
+// //     },
+// //     ExpressionAttributeValues: {
+// //       ':now': new Date().toISOString()
+// //     }
+// //   }).promise();
+
+// //   const sendMessages = remindersDue.Items.map(async reminder => {
+// //     const message = `${reminder.patientName}, ${reminder.message}`;
+
+// //     return sns.publish({
+// //       Message: message,
+// //       PhoneNumber: reminder.patientCellPhone,
+// //       MessageAttributes: {
+// //         'AWS.SNS.SMS.SMSType': {
+// //           DataType: 'String',
+// //           StringValue: 'Transactional'
+// //         }
+// //       }
+// //     }).promise();
+// //   });
+
+// //   await Promise.all(sendMessages);
+
+// //   return { statusCode: 200, body: 'Messages sent' };
+// // };
+
+// // module.exports.receiveEvent = async (event) => {
+// //   const { patientName, patientID, processNumber, currentDate, patientCellPhone } = JSON.parse(event.body);
+
+// //   if (processNumber !== 1) {
+// //     return { statusCode: 400, body: 'Invalid process number' };
+// //   }
+
+// //   const reminders = [
+// //     { days: 30, message: 'message for 30 days remind' },
+// //     { days: 60, message: 'message for 60 days remind' },
+// //     { days: 120, message: 'message for 120 days remind' },
+// //   ];
+
+// //   const putRequests = reminders.map(reminder => {
+// //     return dynamoDb.put({
+// //       TableName: 'Reminders',
+// //       Item: {
+// //         patientID,
+// //         reminderDate: new Date(new Date(currentDate).setDate(new Date(currentDate).getDate() + reminder.days)).toISOString(),
+// //         patientName,
+// //         patientCellPhone,
+// //         message: reminder.message
+// //       }
+// //     }).promise();
+// //   });
+
+// //   await Promise.all(putRequests);
+
+// //   // Send WhatsApp messages
+// //   const sendMessages = reminders.map(reminder => {
+// //     const message = `${patientName}, ${reminder.message}`;
+// //     return client.messages.create({
+// //       body: message,
+// //       from: 'whatsapp:+14155238886', // Your Twilio WhatsApp number
+// //       to: `whatsapp:${patientCellPhone}`
+// //     });
+// //   });
+
+// //   await Promise.all(sendMessages);
+
+// //   return { statusCode: 200, body: JSON.stringify({ message: 'Reminders scheduled and WhatsApp messages sent' }) };
+// // };
+
+// // module.exports.processPayload = async (event) => {
+// //     const payload = JSON.parse(event.body);
+// //     const currentDate = moment().toISOString();
+// //     const processNumber = payload.processNumber;
+
+// //     const params = {
+// //         TableName: tableName,
+// //         Item: {
+// //             patientId: payload.patientId,
+// //             patientName: payload.patientName,
+// //             processNumber: processNumber,
+// //             currentDate: currentDate,
+// //             patientCellPhone: payload.patientCellPhone
+// //         }
+// //     };
+
+// //     try {
+// //         await dynamoDb.put(params).promise();
+
+// //         if (processNumber === 1) {
+// //             const reminders = [
+// //                 { days: 30, message: 'Message for 30 days remind' },
+// //                 { days: 60, message: 'Message for 60 days remind' },
+// //                 { days: 120, message: 'Message for 120 days remind' }
+// //             ];
+
+// //             for (const reminder of reminders) {
+// //                 const reminderDate = moment().add(reminder.days, 'days').toISOString();
+// //                 const reminderParams = {
+// //                     TableName: tableName,
+// //                     Item: {
+// //                         patientId: payload.patientId,
+// //                         reminderDate: reminderDate,
+// //                         message: reminder.message
+// //                     }
+// //                 };
+
+// //                 await dynamoDb.put(reminderParams).promise();
+
+// //                 // Send WhatsApp message
+// //                 await sendWhatsAppMessage(payload.patientCellPhone, reminder.message);
+// //             }
+// //         }
+
+// //         return {
+// //             statusCode: 200,
+// //             body: JSON.stringify({ message: 'Event processed successfully' })
+// //         };
+// //     } catch (error) {
+// //         return {
+// //             statusCode: 500,
+// //             body: JSON.stringify({ error: 'An error occurred while processing the event' })
+// //         };
+// //     }
+// // };
+
+// // async function sendWhatsAppMessage(recipient, message) {
+// //     try {
+// //         await twilioClient.messages.create({
+// //             body: message,
+// //             from: 'whatsapp:+14155238886', // Your Twilio WhatsApp number
+// //             to: `whatsapp:${recipient}`
+// //         });
+// //     } catch (error) {
+// //         console.error('Error sending WhatsApp message:', error);
+// //         throw error;
+// //     }
+// // }
+
+
+// ================================
+
+service: patient-reminder-system
+
+frameworkVersion: "3"
+
+# npm install moment
+# npm install --save aws-sdk moment twilio
+
+
+
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  # iamRoleStatements:
+  #   - Effect: Allow
+  #     Action:
+  #       - dynamodb:PutItem
+  #       - dynamodb:Scan
+  #       - sns:Publish
+  #     Resource:
+  #       - arn:aws:dynamodb:us-east-1:YOUR_ACCOUNT_ID:table/Reminders
+  #       - arn:aws:sns:us-east-1:YOUR_ACCOUNT_ID:whatsapp-topic
+
+# plugins:
+#   - serverless-plugin-schedule  
+
+functions:
+  eventTest:
+    handler: handler.receiveEvent
+    events:
+      - http:
+          path: receive
+          method: get
+
+  # receiveEvent:
+  #   handler: handler.receiveEvent
+  #   events:
+  #     - http:
+  #         path: receive
+  #         method: post
+
+  # scheduleReminders:
+  #   handler: handler.scheduleReminders
+  #   events:
+  #     - cloudwatchEvent:
+  #         event:
+  #           source:
+  #             - aws.events
+  #           detail-type:
+  #             - Scheduled Event
+  #           detail:
+  #             state:
+  #               - scheduled
+
+# resources:
+#   Resources:
+#     RemindersTable:
+#       Type: AWS::DynamoDB::Table
+#       Properties:
+#         TableName: Reminders
+#         AttributeDefinitions:
+#           - AttributeName: patientID
+#             AttributeType: S
+#         KeySchema:
+#           - AttributeName: patientID
+#             KeyType: HASH
+#         ProvisionedThroughput:
+#           ReadCapacityUnits: 1
+#           WriteCapacityUnits: 1
+
+#     SendReminderRole:
+#       Type: AWS::IAM::Role
+#       Properties:
+#         AssumeRolePolicyDocument:
+#           Version: '2012-10-17'
+#           Statement:
+#             - Effect: Allow
+#               Principal:
+#                 Service: lambda.amazonaws.com
+#               Action: sts:AssumeRole
+#         Policies:
+#           - PolicyName: SendReminderPolicy
+#             PolicyDocument:
+#               Version: '2012-10-17'
+#               Statement:
+#                 - Effect: Allow
+#                   Action:
+#                     - dynamodb:GetItem
+#                   Resource: arn:aws:dynamodb:us-east-1:YOUR_ACCOUNT_ID:table/Reminders
+#                 - Effect: Allow
+#                   Action:
+#                     - sns:Publish
+#                   Resource: '*'
+
+
+============================
+
+
+i want to schedule a function to run in a unique time in the future passint it some parameters. what is the appropriate service to be used for this?
+
+
+For scheduling a function to run at a unique time in the future with specific parameters, you can use Amazon EventBridge in conjunction with AWS Lambda. EventBridge allows you to create rules that can trigger Lambda functions at scheduled times, and you can pass parameters to the Lambda function via the event payload.
+
+Here’s a step-by-step guide to accomplish this:
+
+### Step 1: Create a Lambda Function
+
+First, create a Lambda function that will be triggered by the EventBridge rule.
+
+```javascript
+exports.handler = async (event) => {
+    console.log("Event received:", event);
+
+    const params = event.params; // Access parameters passed to the function
+
+    // Your business logic here
+
+    return {
+        statusCode: 200,
+        body: JSON.stringify({
+            message: "Function executed successfully",
+            params: params,
+        }),
+    };
+};
+```
+
+### Step 2: Create an EventBridge Rule
+
+To schedule a one-time event, you can create an EventBridge rule with a cron expression or a specific timestamp.
+
+#### Using AWS SDK (Node.js example):
+
+```javascript
+const { EventBridgeClient, PutRuleCommand, PutTargetsCommand } = require("@aws-sdk/client-eventbridge");
+
+// Initialize the EventBridge client
+const eventBridge = new EventBridgeClient({ region: "us-west-2" });
+
+async function scheduleFunction(params, time) {
+    const ruleName = "OneTimeScheduleRule";
+
+    // Create a rule with a specific timestamp
+    const putRuleParams = {
+        Name: ruleName,
+        ScheduleExpression: `at(${time})`,
+        State: "ENABLED",
+    };
+    const putRuleCommand = new PutRuleCommand(putRuleParams);
+    await eventBridge.send(putRuleCommand);
+
+    // Define the event target
+    const putTargetsParams = {
+        Rule: ruleName,
+        Targets: [
+            {
+                Id: "1",
+                Arn: "arn:aws:lambda:us-west-2:123456789012:function:YourLambdaFunctionName",
+                Input: JSON.stringify({ params: params }),
+            },
+        ],
+    };
+    const putTargetsCommand = new PutTargetsCommand(putTargetsParams);
+    await eventBridge.send(putTargetsCommand);
+
+    console.log("Scheduled function successfully");
+}
+
+// Example usage
+scheduleFunction({ key1: "value1", key2: "value2" }, "2024-06-01T00:00:00Z");
+```
+
+### Step 3: Add Permissions for EventBridge to Invoke Lambda
+
+Make sure your Lambda function has permission to be invoked by EventBridge.
+
+#### Add Permission using AWS SDK (Node.js example):
+
+```javascript
+const { LambdaClient, AddPermissionCommand } = require("@aws-sdk/client-lambda");
+
+// Initialize the Lambda client
+const lambda = new LambdaClient({ region: "us-west-2" });
+
+async function addPermission() {
+    const addPermissionParams = {
+        Action: "lambda:InvokeFunction",
+        FunctionName: "YourLambdaFunctionName",
+        Principal: "events.amazonaws.com",
+        StatementId: "EventBridgeInvokePermission",
+    };
+    const addPermissionCommand = new AddPermissionCommand(addPermissionParams);
+    await lambda.send(addPermissionCommand);
+
+    console.log("Added permission for EventBridge to invoke Lambda function");
+}
+
+// Example usage
+addPermission();
+```
+
+### Step 4: Deploy the Lambda Function
+
+Deploy your Lambda function using the AWS Management Console, AWS CLI, or an Infrastructure as Code tool like AWS CloudFormation or Terraform.
+
+### Summary
+
+1. Create a Lambda function to handle the scheduled event.
+2. Use EventBridge to create a one-time rule that triggers the Lambda function at the specified time with the desired parameters.
+3. Ensure the Lambda function has the necessary permissions to be invoked by EventBridge.
+
+This setup allows you to schedule a function to run at a unique time in the future with specific parameters, leveraging AWS EventBridge and Lambda services.
+
+
+To send a message to WhatsApp using an AWS Lambda function triggered by an EventBridge rule, you can use the Twilio API. Twilio provides a straightforward way to send messages to WhatsApp. Here's a step-by-step guide:
+
+
+
+
+===================================================================
+===================================================================
+===================================================================
+===================================================================
+===================================================================
+### Step 1: Set Up Twilio
+
+1. **Sign up for a Twilio account**: If you don’t already have one, sign up at [Twilio](https://www.twilio.com/).
+2. **Get your Twilio credentials**: Obtain your Account SID, Auth Token, and WhatsApp-enabled phone number from the Twilio Console.
+
+### Step 2: Create the Lambda Function
+
+First, you need to create a Lambda function that uses the Twilio API to send a message to WhatsApp.
+
+#### Install Twilio SDK
+
+You need to include the Twilio SDK in your Lambda deployment package. If you are using a local environment, you can install it with npm:
+
+```bash
+npm install twilio
+```
+
+#### Lambda Function Code
+
+Here's an example Lambda function that sends a message to WhatsApp using Twilio:
+
+```javascript
+const twilio = require('twilio');
+
+const accountSid = 'your_account_sid'; // Replace with your Twilio Account SID
+const authToken = 'your_auth_token'; // Replace with your Twilio Auth Token
+const client = new twilio(accountSid, authToken);
+
+exports.handler = async (event) => {
+    try {
+        const params = event.params; // Parameters from the EventBridge rule
+
+        // Send a WhatsApp message using Twilio
+        const message = await client.messages.create({
+            body: params.message, // The message to be sent
+            from: 'whatsapp:+14155238886', // Replace with your Twilio WhatsApp number
+            to: 'whatsapp:' + params.to // The recipient's WhatsApp number
+        });
+
+        console.log("Message sent:", message.sid);
+
+        return {
+            statusCode: 200,
+            body: JSON.stringify({
+                message: "WhatsApp message sent successfully",
+                messageSid: message.sid,
+            }),
+        };
+    } catch (error) {
+        console.error("Error sending WhatsApp message:", error);
+        return {
+            statusCode: 500,
+            body: JSON.stringify({
+                message: "Failed to send WhatsApp message",
+                error: error.message,
+            }),
+        };
+    }
+};
+```
+
+### Step 3: Create an EventBridge Rule
+
+Use EventBridge to create a rule that triggers the Lambda function at the specified time with the desired parameters.
+
+```javascript
+const { EventBridgeClient, PutRuleCommand, PutTargetsCommand } = require("@aws-sdk/client-eventbridge");
+
+// Initialize the EventBridge client
+const eventBridge = new EventBridgeClient({ region: "us-west-2" });
+
+async function scheduleFunction(params, time) {
+    const ruleName = "OneTimeScheduleRule";
+
+    // Create a rule with a specific timestamp
+    const putRuleParams = {
+        Name: ruleName,
+        ScheduleExpression: `at(${time})`,
+        State: "ENABLED",
+    };
+    const putRuleCommand = new PutRuleCommand(putRuleParams);
+    await eventBridge.send(putRuleCommand);
+
+    // Define the event target
+    const putTargetsParams = {
+        Rule: ruleName,
+        Targets: [
+            {
+                Id: "1",
+                Arn: "arn:aws:lambda:us-west-2:123456789012:function:YourLambdaFunctionName",
+                Input: JSON.stringify({ params: params }),
+            },
+        ],
+    };
+    const putTargetsCommand = new PutTargetsCommand(putTargetsParams);
+    await eventBridge.send(putTargetsCommand);
+
+    console.log("Scheduled function successfully");
+}
+
+// Example usage
+scheduleFunction({ to: "+1234567890", message: "Hello from Lambda!" }, "2024-06-01T00:00:00Z");
+```
+
+### Step 4: Add Permissions for EventBridge to Invoke Lambda
+
+Make sure your Lambda function has permission to be invoked by EventBridge.
+
+```javascript
+const { LambdaClient, AddPermissionCommand } = require("@aws-sdk/client-lambda");
+
+// Initialize the Lambda client
+const lambda = new LambdaClient({ region: "us-west-2" });
+
+async function addPermission() {
+    const addPermissionParams = {
+        Action: "lambda:InvokeFunction",
+        FunctionName: "YourLambdaFunctionName",
+        Principal: "events.amazonaws.com",
+        StatementId: "EventBridgeInvokePermission",
+    };
+    const addPermissionCommand = new AddPermissionCommand(addPermissionParams);
+    await lambda.send(addPermissionCommand);
+
+    console.log("Added permission for EventBridge to invoke Lambda function");
+}
+
+// Example usage
+addPermission();
+```
+
+### Step 5: Deploy the Lambda Function
+
+1. **Zip your Lambda function code and dependencies** (including the `node_modules` directory).
+2. **Upload the deployment package** to AWS Lambda using the AWS Management Console, AWS CLI, or an Infrastructure as Code tool like AWS CloudFormation or Terraform.
+
+### Summary
+
+1. **Set up Twilio**: Get your Twilio credentials.
+2. **Create a Lambda function**: Use the Twilio SDK to send a message to WhatsApp.
+3. **Create an EventBridge rule**: Schedule the Lambda function to run at a specific time with parameters.
+4. **Add permissions**: Ensure EventBridge can invoke the Lambda function.
+5. **Deploy**: Package and deploy the Lambda function to AWS.
+
+This setup allows you to schedule a Lambda function to send a WhatsApp message at a specific time using AWS EventBridge and Twilio.
+
+
+===================================================
+===================================================
+===================================================
+===================================================
+===================================================
+
+Using the Meta (formerly Facebook) Official API to send a WhatsApp message involves setting up a WhatsApp Business Account and using the WhatsApp Business API. Here’s a step-by-step guide to schedule a Lambda function to send a WhatsApp message at a specific time using AWS EventBridge and the Meta API.
+
+### Step 1: Set Up WhatsApp Business API
+
+1. **Register for WhatsApp Business API**: Follow the instructions on the [WhatsApp Business API](https://www.whatsapp.com/business/api) page to set up your WhatsApp Business Account.
+2. **Get API credentials**: Obtain your WhatsApp Business Account API credentials (Access Token, Phone Number ID).
+
+### Step 2: Create the Lambda Function
+
+You need to create a Lambda function that sends a WhatsApp message using the Meta API.
+
+#### Install Axios
+
+You will use Axios for making HTTP requests. Install it in your Lambda deployment package.
+
+```bash
+npm install axios
+```
+
+#### Lambda Function Code
+
+Here's an example Lambda function to send a WhatsApp message using the Meta API:
+
+```javascript
+const axios = require('axios');
+
+const accessToken = 'your_access_token'; // Replace with your Meta API Access Token
+const phoneNumberId = 'your_phone_number_id'; // Replace with your WhatsApp Business Account Phone Number ID
+
+exports.handler = async (event) => {
+    try {
+        const params = event.params; // Parameters from the EventBridge rule
+
+        const messageData = {
+            messaging_product: "whatsapp",
+            to: params.to, // Recipient's phone number in international format
+            type: "text",
+            text: {
+                body: params.message // The message to be sent
+            }
+        };
+
+        const response = await axios.post(
+            `https://graph.facebook.com/v12.0/${phoneNumberId}/messages`,
+            messageData,
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+
+        console.log("Message sent:", response.data);
+
+        return {
+            statusCode: 200,
+            body: JSON.stringify({
+                message: "WhatsApp message sent successfully",
+                response: response.data,
+            }),
+        };
+    } catch (error) {
+        console.error("Error sending WhatsApp message:", error);
+        return {
+            statusCode: 500,
+            body: JSON.stringify({
+                message: "Failed to send WhatsApp message",
+                error: error.message,
+            }),
+        };
+    }
+};
+```
+
+### Step 3: Create an EventBridge Rule
+
+Use EventBridge to create a rule that triggers the Lambda function at the specified time with the desired parameters.
+
+#### Using AWS SDK (Node.js example):
+
+```javascript
+const { EventBridgeClient, PutRuleCommand, PutTargetsCommand } = require("@aws-sdk/client-eventbridge");
+
+// Initialize the EventBridge client
+const eventBridge = new EventBridgeClient({ region: "us-west-2" });
+
+async function scheduleFunction(params, time) {
+    const ruleName = "OneTimeScheduleRule";
+
+    // Create a rule with a specific timestamp
+    const putRuleParams = {
+        Name: ruleName,
+        ScheduleExpression: `at(${time})`,
+        State: "ENABLED",
+    };
+    const putRuleCommand = new PutRuleCommand(putRuleParams);
+    await eventBridge.send(putRuleCommand);
+
+    // Define the event target
+    const putTargetsParams = {
+        Rule: ruleName,
+        Targets: [
+            {
+                Id: "1",
+                Arn: "arn:aws:lambda:us-west-2:123456789012:function:YourLambdaFunctionName",
+                Input: JSON.stringify({ params: params }),
+            },
+        ],
+    };
+    const putTargetsCommand = new PutTargetsCommand(putTargetsParams);
+    await eventBridge.send(putTargetsCommand);
+
+    console.log("Scheduled function successfully");
+}
+
+// Example usage
+scheduleFunction({ to: "+1234567890", message: "Hello from Lambda!" }, "2024-06-01T00:00:00Z");
+```
+
+### Step 4: Add Permissions for EventBridge to Invoke Lambda
+
+Make sure your Lambda function has permission to be invoked by EventBridge.
+
+#### Add Permission using AWS SDK (Node.js example):
+
+```javascript
+const { LambdaClient, AddPermissionCommand } = require("@aws-sdk/client-lambda");
+
+// Initialize the Lambda client
+const lambda = new LambdaClient({ region: "us-west-2" });
+
+async function addPermission() {
+    const addPermissionParams = {
+        Action: "lambda:InvokeFunction",
+        FunctionName: "YourLambdaFunctionName",
+        Principal: "events.amazonaws.com",
+        StatementId: "EventBridgeInvokePermission",
+    };
+    const addPermissionCommand = new AddPermissionCommand(addPermissionParams);
+    await lambda.send(addPermissionCommand);
+
+    console.log("Added permission for EventBridge to invoke Lambda function");
+}
+
+// Example usage
+addPermission();
+```
+
+### Step 5: Deploy the Lambda Function
+
+1. **Zip your Lambda function code and dependencies** (including the `node_modules` directory).
+2. **Upload the deployment package** to AWS Lambda using the AWS Management Console, AWS CLI, or an Infrastructure as Code tool like AWS CloudFormation or Terraform.
+
+### Summary
+
+1. **Set up WhatsApp Business API**: Get your API credentials.
+2. **Create a Lambda function**: Use Axios to send a WhatsApp message via the Meta API.
+3. **Create an EventBridge rule**: Schedule the Lambda function to run at a specific time with parameters.
+4. **Add permissions**: Ensure EventBridge can invoke the Lambda function.
+5. **Deploy**: Package and deploy the Lambda function to AWS.
+
+This setup allows you to schedule a Lambda function to send a WhatsApp message at a specific time using AWS EventBridge and the Meta API.
+
+
+*************************************
+*************************************
+*************************************
+*************************************
+To add the necessary permissions for EventBridge to invoke your Lambda function using the `serverless.yml` format, you need to include the appropriate `iamRoleStatements` under the provider section. Below is an example of how to configure your `serverless.yml` file:
+
+```yaml
+service: whatsapp-messaging-service
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: us-west-2
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - "lambda:InvokeFunction"
+      Resource:
+        - arn:aws:lambda:us-west-2:123456789012:function:YourLambdaFunctionName
+    - Effect: Allow
+      Action:
+        - "events:PutRule"
+        - "events:PutTargets"
+        - "events:RemoveTargets"
+        - "events:DeleteRule"
+      Resource: "*"
+
+functions:
+  sendMessage:
+    handler: handler.sendMessage
+    events:
+      - http:
+          path: send-message
+          method: post
+
+resources:
+  Resources:
+    LambdaInvokePermissionForEventBridge:
+      Type: AWS::Lambda::Permission
+      Properties:
+        FunctionName: arn:aws:lambda:us-west-2:123456789012:function:YourLambdaFunctionName
+        Action: lambda:InvokeFunction
+        Principal: events.amazonaws.com
+        SourceArn: arn:aws:events:us-west-2:123456789012:rule/OneTimeScheduleRule
+```
+
+### Explanation
+
+1. **Provider Configuration**:
+   - `name`: Specifies the cloud provider (AWS).
+   - `runtime`: The runtime environment for your Lambda function (Node.js 14.x in this case).
+   - `region`: The AWS region where your resources will be deployed.
+   - `iamRoleStatements`: Defines the IAM role permissions for your Lambda function.
+
+2. **IAM Role Statements**:
+   - The first `Effect: Allow` block grants permission to invoke the Lambda function.
+   - The second `Effect: Allow` block grants permissions for EventBridge actions required to create, manage, and delete rules and targets.
+
+3. **Function Configuration**:
+   - `functions`: Defines the Lambda function configuration.
+   - `sendMessage`: The name of the Lambda function.
+   - `handler`: The handler function in your code.
+   - `events`: Defines the events that trigger the Lambda function. In this case, an HTTP POST request.
+
+4. **Resource Configuration**:
+   - `resources`: Defines additional CloudFormation resources.
+   - `LambdaInvokePermissionForEventBridge`: Grants EventBridge permission to invoke the Lambda function.
+   - `FunctionName`: The ARN of your Lambda function.
+   - `Action`: The action that EventBridge can perform on the Lambda function.
+   - `Principal`: Specifies the service that can invoke the function (EventBridge in this case).
+   - `SourceArn`: The ARN of the EventBridge rule that will trigger the Lambda function.
+
+### Deploying with Serverless Framework
+
+To deploy your configuration, run the following command:
+
+```bash
+serverless deploy
+```
+
+This setup will ensure that your Lambda function can be invoked by EventBridge with the appropriate permissions and configurations defined in the `serverless.yml` file.
